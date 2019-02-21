@@ -16,10 +16,13 @@ HttpServer.install = function(Vue) {
   // 登录的响应res 和其他的请求req 一样
   // 拦截-> axios拦截请求
 
-  axios.interceptors.request.use(
-    function(config) {
+  // 请求拦截器的代码
+  // 100个请求
+  axios.interceptors.request.use(function(config) {
       // 在发送请求之前做些什么
-      console.log("拦截器被触发---");
+      console.log(config);
+      
+      // console.log("拦截器被触发---");
       // 1.header 请求头
       // 2.url 请求的标识路径
       // console.log(config);
@@ -27,7 +30,9 @@ HttpServer.install = function(Vue) {
       if (config.url !== "login") {
         // 设置头部
         const AUTH_TOKEN = localStorage.getItem("token");
-        axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+        // 给当前请求设置请求头
+        // axios.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+        config.headers["Authorization"] = AUTH_TOKEN;
       }
       // 当请求不是login，先加头部，然后继续发送请求
 

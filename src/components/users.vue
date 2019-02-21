@@ -201,7 +201,7 @@
               :label="item.roleName"
               :value="item.id"
               v-for="(item,i) in roles"
-              :key="item.id"
+              :key="i"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -350,10 +350,16 @@ export default {
       }
     },
     // 编辑- 显示对话框
-    showDiaEditUser(user) {
-      this.formdata = user;
-
+    async showDiaEditUser(user) {
       this.dialogFormVisibleEdit = true;
+      // console.log(res);
+      // this.formdata = user;
+      // 根源this.formdata = user;
+      // 解决方案 this.formdata=来源于自己的数据
+      const res = await this.$http.get(`users/${user.id}`)
+      // console.log(res);
+      this.formdata = res.data.data;
+      
     },
     // 删除 - 弹出确认框 confirm
     showMsgBox(user) {
