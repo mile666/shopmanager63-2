@@ -11,7 +11,8 @@
           <!-- 行列 -->
           <el-row class="level1" v-for="(item1,i) in scope.row.children" :key="item1.id">
             <el-col :span="4">
-              <el-tag type="danger" closable>
+              <!-- 一级 -->
+              <el-tag @close="deleRights(scope.row,item1)" type="danger" closable>
                 {{item1.authName}}
               </el-tag>
               <i class="el-icon-arrow-right"></i>
@@ -19,15 +20,23 @@
             <el-col :span="20">
               <el-row class="level2" v-for="(item2,i) in item1.children" :key="item2.id">
                 <el-col :span="4">
-                  <el-tag type="success" closable>
+                  <!-- 二级 -->
+                  <el-tag @close="deleRights(scope.row,item2)" type="success" closable>
                     {{item2.authName}}
                   </el-tag>
                   <i class="el-icon-arrow-right"></i>
                 </el-col>
                 <el-col :span="20">
-                  <el-tag v-for="(item3,i) in item2.children" :key="item3.id" type="warning" closable>{{item3.authName}}</el-tag>
+                  <!-- 三级 -->
+                  <el-tag @close="deleRights(scope.row,item3)" v-for="(item3,i) in item2.children" :key="item3.id" type="warning" closable>{{item3.authName}}</el-tag>
                 </el-col>
               </el-row>
+            </el-col>
+          </el-row>
+          <!-- 用户没有权限处理效果 -->
+          <el-row v-if="scope.row.children.length===0">
+            <el-col>
+              <span>未分配权限</span>
             </el-col>
           </el-row>
         </template>
@@ -57,6 +66,24 @@ export default {
     this.getRoles();
   },
   methods: {
+    // 点×取消权限
+    async deleRights(role,rights){
+      // console.log(role,rights);
+      // roleId -> 角色id <- 角色
+      // rithtId -> 权限id <- 权限
+      const res = await this.$http.delete(`roles/${role.id}/rights/${rights.id}`);
+      console.log(res);
+      const {meta:{msg,status},data} = res.data;
+      if(status===200){
+        // 提示
+        this.$message.success(msg);
+        // 更新
+        // this.getRoles();
+        // 只更新当前角色的权限
+        // console.log(data);
+        role.children = data;
+      }
+    },
     showDiaSetRights() {},
     // 获取角色
     async getRoles() {
