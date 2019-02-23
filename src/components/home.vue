@@ -65,11 +65,11 @@ export default {
   // 组件在渲染完成之前先来到 beforemount（）{}，意思是在home组件在出现在页面之前，自动的先来到beformount（）{}
   beforeMount(){
     // console.log('beforeMount被执行了')
-    if(!localStorage.getItem('token')){
-      this.$router.push({
-        name:'login'
-      })
-    }
+    // if(!localStorage.getItem('token')){
+    //   this.$router.push({
+    //     name:'login'
+    //   })
+    // }
   },
   created(){
     this.getMenus();
@@ -77,6 +77,8 @@ export default {
   methods:{
     // 获取菜单
     async getMenus(){
+      // 角色为超管 ->超管的token->请求菜单<-token
+      // admin 登录 -> 主管 -> 所有权限 -> 主管的token ->
       const res = await this.$http.get(`menus`);
       console.log(res);
       const {meta:{msg,status},data} = res.data;
