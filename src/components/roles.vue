@@ -59,7 +59,7 @@
       </el-tree>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+        <el-button type="primary" @click="setRights()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -83,13 +83,56 @@ export default {
         label: "authName",
         children: "children"
       },
-      currRoleId:-1
+      // 当前角色id
+      currRoleId: -1
     };
   },
   created() {
     this.getRoles();
   },
   methods: {
+    // 分配权限
+    async setRights() {
+      // 取出每一层节点的id -> arrExpand
+
+      // 默认选中-> 全选节点+半选节点 ->arrCheck[全选节点id+半选节点id]
+      // 获取树形结构中全选id->操作第三方组件->el-tree->组件API(attr和方法)----方法
+      // getCheckedKeys
+      // ?.getHalfCheckedKeys()-> 找？->该方法属于组件标签的方法el-tree的方法
+      // eg:
+      // document.getElementById("main").js方法()  // 把页面的标签标签变成一个dom元素
+      // document.getElementById("tree")  --> 不行
+      // 在js中调用组件标签的js方法 -> ref操作dom
+      // 1.给要操作的页面元素el-tree设置ref="值"
+      // 2.在js中通过this.$refs.ref的值.js方法
+      // (把el-tree变成DOM元素的结果).getCheckedKeys();
+      // this.$refs.treeDom.js方法
+      // console.log(this.$refs);
+
+      // 获取当前角色选中的节点id
+      // console.log(this.$refs);
+      const arr1 = this.$refs.treeDom.getCheckedKeys();
+      // console.log(arr1);
+
+      // 获取树形结构中半选id
+      const arr2 = this.$refs.treeDom.getHalfCheckedKeys();
+      // console.log(arr2);
+      // ES6展开操作运算符
+      const arr = [...arr1, ...arr2];
+      // 发送请求
+      // roles/:roleId/rights
+      // roleId 当前角色id  ==>数据==>data
+      const res = await this.$http.post(`roles/${this.currRoleId}/rights`,{
+        rids:arr.join(",")
+      }); // 文档 角色权限
+      // console.log(this.arrCheck);
+      console.log(res);
+      if(res.data.meta.status===200){
+        // this.$message.success(res.data.meta.msg);
+        this.dialogFormVisible = false;
+        this.getRoles();
+      }
+    },
     // 点×取消权限
     async deleRights(role, rights) {
       // console.log(role,rights);
@@ -112,7 +155,7 @@ export default {
     },
     // 打开√对话框
     async showDiaSetRights(role) {
-      // this.currRoleId = role.id;
+      this.currRoleId = role.id;
       // 获取所有的权限
       const res = await this.$http.get(`rights/tree`);
       // console.log(res);
@@ -134,36 +177,9 @@ export default {
         // });
         // console.log(temp);
         // this.arrExpand = temp;
-        // 取出每一层节点的id -> arrExpand
-
-        // 默认选中-> 全选节点+半选节点 ->arrCheck[全选节点id+半选节点id]
-        // 获取树形结构中全选id->操作第三方组件->el-tree->组件API(attr和方法)----方法
-        // getCheckedKeys
-        // ?.getHalfCheckedNodes()-> 找？->该方法属于组件标签的方法el-tree的方法
-        // eg:
-        // document.getElementById("main").js方法()  // 把页面的标签标签变成一个dom元素
-        // document.getElementById("tree")  --> 不行
-        // 在js中调用组件标签的js方法 -> ref操作dom
-        // 1.给要操作的页面元素el-tree设置ref="值"
-        // 2.在js中通过this.$refs.ref的值.js方法
-        // (把el-tree变成DOM元素的结果).getCheckedKeys();
-        // this.$refs.treeDom.js方法
-        // console.log(this.$refs);
-
-        // 获取当前角色选中的节点id
-        // console.log(this.$refs);
-        // const arr1 = this.$refs.treeDom.getCheckedKeys();
-        // console.log(arr1);
-
-        // 获取树形结构中半选id
-        // const arr2 = this.$refs.treeDom.getHalfCheckedNodes();
-        // ES6展开操作运算符
-        // this.arrCheck = [...arr1,...arr2];
-        // console.log(this.arrCheck);
-     
       }
 
-       // 获取当前角色的权限
+      // 获取当前角色的权限
       const temp = [];
       role.children.forEach(item1 => {
         // temp.push(item1.id);
